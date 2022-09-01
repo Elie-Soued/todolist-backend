@@ -19,5 +19,7 @@ app.use(express.json());
 //Assigning a route file to a path
 app.use("/todos", todosRoute);
 
+app.get("/", (req, res) => res.send("Hello World"));
+
 //Starting a server and make it listen to a specific port
 app.listen(port, () => console.log(`Server running on port${port}`));
