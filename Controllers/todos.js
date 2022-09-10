@@ -37,11 +37,11 @@ module.exports = {
   updateById: async (req, res) => {
     const { id } = req.params;
     const { todo } = req.body;
-    //validation to be done here
 
     try {
-      const queryString = 'UPDATE "todos" SET todo =$1';
-      await pool.query(queryString, [todo]);
+      const queryString = "UPDATE todos SET todo = $1 WHERE id = $2";
+
+      await pool.query(queryString, [todo, id]);
       res.json({
         code: 200,
         message: "updated todo correcty with id" + id,
