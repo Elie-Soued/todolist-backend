@@ -5,6 +5,7 @@ const express = require("express");
 
 //Routes import
 const todosRoute = require("./Routes/todos");
+const usersRoute = require("./Routes/users");
 
 //Constants Declaration
 const { PORT } = process.env;
@@ -18,6 +19,7 @@ app.use(express.json());
 
 //Assigning a route file to a path
 app.use("/todos", todosRoute);
+app.use("/users", usersRoute);
 
 app.get("/", (req, res) => res.send("Hello World"));
 
