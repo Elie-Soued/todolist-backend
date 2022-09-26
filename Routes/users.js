@@ -7,11 +7,11 @@ const router = express.Router();
 const usersControllers = require("../Controllers/users");
 
 //Setting the user Routes (associating a function/Controller/Middleware to an endpoint)
-// router.get("/:id", usersControllers.getByID);
-// router.get("/", usersControllers.getAll);
-router.post("/", usersControllers.create);
-// router.put("/:id", usersControllers.updateById);
-// router.delete("/:id", usersControllers.deleteById);
+router.get("/:id", usersControllers.getByID);
+router.get("/", usersControllers.getAll);
+router.post("/", usersControllers.register);
+router.post("/login", usersControllers.login);
+router.delete("/:id", usersControllers.deleteById);
 
 //export the user Routes
 module.exports = router;
