@@ -7,11 +7,23 @@ const router = express.Router();
 const todosControllers = require("../Controllers/todos");
 
 //Setting the user Routes (associating a function/Controller/Middleware to an endpoint)
-router.get("/:id", todosControllers.getByID);
-router.get("/", todosControllers.getAll);
-router.post("/", todosControllers.create);
-router.put("/:id", todosControllers.updateById);
-router.delete("/:id", todosControllers.deleteById);
+router.get(
+  "/:id",
+  todosControllers.authenticateToken,
+  todosControllers.getByID
+);
+router.get("/", todosControllers.authenticateToken, todosControllers.getAll);
+router.post("/", todosControllers.authenticateToken, todosControllers.create);
+router.put(
+  "/:id",
+  todosControllers.authenticateToken,
+  todosControllers.updateById
+);
+router.delete(
+  "/:id",
+  todosControllers.authenticateToken,
+  todosControllers.deleteById
+);
 
 //export the user Routes
 module.exports = router;
