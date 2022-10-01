@@ -1,12 +1,16 @@
+const jwt = require("jsonwebtoken");
 const pool = require("../dbconfig");
+require("dotenv").config();
 
 module.exports = {
   create: async (req, res) => {
     const { todo } = req.body;
+    const userId = req.user.id;
 
     try {
-      const queryString = 'INSERT INTO "todos" (todo) VALUES ($1) RETURNING *;';
-      const dbResponse = await pool.query(queryString, [todo]);
+      const queryString =
+        'INSERT INTO "todoss" (todo, user_id) VALUES ($1,$2);';
+      const dbResponse = await pool.query(queryString, [todo, userId]);
       res.json({
         code: 200,
         message: "inserted todo correctly",
@@ -20,9 +24,12 @@ module.exports = {
     }
   },
 
-  getAll: async (_, res) => {
+  getAll: async (req, res) => {
+    const userId = req.user.id;
     try {
-      const dbResponse = await pool.query("SELECT * FROM todos");
+      const dbResponse = await pool.query(
+        `SELECT * FROM todoss WHERE user_id =${userId} `
+      );
       res.json({
         code: 200,
         message: "success",
@@ -39,7 +46,7 @@ module.exports = {
     const { todo } = req.body;
 
     try {
-      const queryString = "UPDATE todos SET todo = $1 WHERE id = $2";
+      const queryString = "UPDATE todoss SET todo = $1 WHERE id = $2";
 
       await pool.query(queryString, [todo, id]);
       res.json({
@@ -58,7 +65,7 @@ module.exports = {
     const { id } = req.params;
 
     try {
-      const queryString = 'DELETE FROM "todos" WHERE id=$1';
+      const queryString = 'DELETE FROM "todoss" WHERE id=$1';
       await pool.query(queryString, [id]);
       res.json({
         code: 200,
@@ -76,7 +83,7 @@ module.exports = {
   getByID: async (req, res) => {
     const { id } = req.params;
     try {
-      const dbResponse = await pool.query("SELECT * FROM todos WHERE id=$1", [
+      const dbResponse = await pool.query("SELECT * FROM todoss WHERE id=$1", [
         id,
       ]);
       res.json({
@@ -88,5 +95,18 @@ module.exports = {
       console.error(Error(e));
       res.status(500);
     }
+  },
+
+  authenticateToken: (req, res, next) => {
+    const token = req.headers["authorization"];
+    console.log("token :>> ", token);
+    if (!token) return res.status(401);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) {
+        return res.status(403);
+      }
+      req.user = user;
+      next();
+    });
   },
 };
