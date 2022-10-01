@@ -1,5 +1,7 @@
+require("dotenv").config();
 const pool = require("../dbconfig");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
   register: async (req, res) => {
@@ -8,7 +10,7 @@ module.exports = {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const queryString =
-        'INSERT INTO "users" (username, password) VALUES ($1,$2);';
+        'INSERT INTO "userss" (username, password) VALUES ($1,$2);';
       const dbResponse = await pool.query(queryString, [
         username,
         hashedPassword,
@@ -28,18 +30,18 @@ module.exports = {
 
   login: async (req, res) => {
     const { username, password } = req.body;
-
-    const users = await pool.query("SELECT * FROM users");
+    const users = await pool.query("SELECT * FROM userss");
     const result = users.rows;
     const user = result.find((user) => user.username === username);
 
-    if (user === null) {
+    if (!user) {
       return res.status(400).send("cannot find user");
     }
 
     try {
       if (bcrypt.compare(password, user.password)) {
-        res.send("success");
+        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+        res.send({ accessToken });
       } else {
         res.send("Not Allowed");
       }
@@ -50,7 +52,7 @@ module.exports = {
 
   getAll: async (_, res) => {
     try {
-      const dbResponse = await pool.query("SELECT * FROM users");
+      const dbResponse = await pool.query("SELECT * FROM userss");
       res.json({
         code: 200,
         message: "success",
@@ -66,7 +68,7 @@ module.exports = {
     const { id } = req.params;
 
     try {
-      const queryString = 'DELETE FROM "users" WHERE id=$1';
+      const queryString = 'DELETE FROM "userss" WHERE id=$1';
       await pool.query(queryString, [id]);
       res.json({
         code: 200,
@@ -84,7 +86,7 @@ module.exports = {
   getByID: async (req, res) => {
     const { id } = req.params;
     try {
-      const dbResponse = await pool.query("SELECT * FROM users WHERE id=$1", [
+      const dbResponse = await pool.query("SELECT * FROM userss WHERE id=$1", [
         id,
       ]);
       res.json({
