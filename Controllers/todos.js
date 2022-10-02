@@ -99,7 +99,6 @@ module.exports = {
 
   authenticateToken: (req, res, next) => {
     const token = req.headers["authorization"];
-    console.log("token :>> ", token);
     if (!token) return res.status(401);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
