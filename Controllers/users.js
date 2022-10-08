@@ -7,6 +7,18 @@ module.exports = {
   register: async (req, res) => {
     const { username, password } = req.body;
 
+    const users = await pool.query("SELECT * FROM userss");
+    const result = users.rows;
+    const user = result.find((user) => user.username === username);
+
+    if (user) {
+      res.json({
+        code: 403,
+        message: "Account exists already",
+      });
+      return;
+    }
+
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const queryString =
@@ -34,16 +46,26 @@ module.exports = {
     const result = users.rows;
     const user = result.find((user) => user.username === username);
 
-    if (!user) {
-      return res.status(400).send("cannot find user");
+    if (user === undefined) {
+      res.json({
+        code: 400,
+        message: "Account does not exist",
+      });
+      return;
     }
 
     try {
-      if (bcrypt.compare(password, user.password)) {
+      const passwordIsMatching = await bcrypt.compare(password, user.password);
+
+      if (passwordIsMatching) {
         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
         res.send({ accessToken });
       } else {
-        res.send("Not Allowed");
+        res.json({
+          code: 401,
+          message: "Wrong Password",
+        });
+        return;
       }
     } catch (e) {
       res.status(500).send();
