@@ -2,6 +2,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
+const cors = require("cors");
 
 //Routes import
 const todosRoute = require("./Routes/todos");
@@ -16,6 +17,7 @@ const port = PORT;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors());
 
 //Assigning a route file to a path
 app.use("/todos", todosRoute);
