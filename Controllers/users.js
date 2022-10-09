@@ -3,17 +3,22 @@ const pool = require("../dbconfig");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const checkIfUserExists = async (req) => {
+  const { username } = req.body;
+  const users = await pool.query("SELECT * FROM userss");
+  const result = users.rows;
+  const user = result.find((user) => user.username === username);
+  return user;
+};
+
 module.exports = {
   register: async (req, res) => {
     const { username, password } = req.body;
-
-    const users = await pool.query("SELECT * FROM userss");
-    const result = users.rows;
-    const user = result.find((user) => user.username === username);
+    const user = await checkIfUserExists(req);
 
     if (user) {
       res.json({
-        code: 403,
+        code: 409,
         message: "Account exists already",
       });
       return;
@@ -41,14 +46,13 @@ module.exports = {
   },
 
   login: async (req, res) => {
-    const { username, password } = req.body;
-    const users = await pool.query("SELECT * FROM userss");
-    const result = users.rows;
-    const user = result.find((user) => user.username === username);
+    const { password } = req.body;
+    const user = await checkIfUserExists(req);
+    console.log("user :>> ", user);
 
     if (user === undefined) {
       res.json({
-        code: 400,
+        code: 404,
         message: "Account does not exist",
       });
       return;
@@ -69,56 +73,6 @@ module.exports = {
       }
     } catch (e) {
       res.status(500).send();
-    }
-  },
-
-  getAll: async (_, res) => {
-    try {
-      const dbResponse = await pool.query("SELECT * FROM userss");
-      res.json({
-        code: 200,
-        message: "success",
-        data: dbResponse.rows,
-      });
-    } catch (e) {
-      console.error(Error(e));
-      res.status(500);
-    }
-  },
-
-  deleteById: async (req, res) => {
-    const { id } = req.params;
-
-    try {
-      const queryString = 'DELETE FROM "userss" WHERE id=$1';
-      await pool.query(queryString, [id]);
-      res.json({
-        code: 200,
-        message: "deleted user correctly with id " + id,
-      });
-    } catch (e) {
-      console.error(Error(e));
-      res.status(500).json({
-        code: 500,
-        message: "Error trying to delete a user with id " + id,
-      });
-    }
-  },
-
-  getByID: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const dbResponse = await pool.query("SELECT * FROM userss WHERE id=$1", [
-        id,
-      ]);
-      res.json({
-        code: 200,
-        message: "success. Found user with id " + id,
-        data: dbResponse.rows[0],
-      });
-    } catch (e) {
-      console.error(Error(e));
-      res.status(500);
     }
   },
 };
