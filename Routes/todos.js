@@ -1,12 +1,7 @@
-//import express
 const express = require("express");
-//give router the value express.Router()
 const router = express.Router();
-
-//import the todosControllers
 const todosControllers = require("../Controllers/todos");
 
-//Setting the user Routes (associating a function/Controller/Middleware to an endpoint)
 router.get(
   "/:id",
   todosControllers.authenticateToken,
@@ -25,5 +20,4 @@ router.delete(
   todosControllers.deleteById
 );
 
-//export the user Routes
 module.exports = router;
