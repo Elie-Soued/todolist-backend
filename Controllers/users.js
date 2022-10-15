@@ -48,7 +48,6 @@ module.exports = {
   login: async (req, res) => {
     const { password } = req.body;
     const user = await checkIfUserExists(req);
-    console.log("user :>> ", user);
 
     if (user === undefined) {
       res.json({
