@@ -9,7 +9,7 @@ module.exports = {
 
     try {
       const queryString =
-        'INSERT INTO "todoss" (todo, user_id) VALUES ($1,$2);';
+        'INSERT INTO "todoss" (todo, user_id) VALUES ($1,$2) RETURNING id';
       const dbResponse = await pool.query(queryString, [todo, userId]);
       res.json({
         code: 200,
